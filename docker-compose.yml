@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: catalogo-db
+    ports:
+      - "5432:5432"
+    environment:
+      # Estas 3 linhas DEVEM ser iguais à sua ConnectionFactory
+      POSTGRES_USER: catalogo_user
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: catalogo_db
+    volumes:
+      # Persistência dos dados
+      - postgres_data:/var/lib/postgresql/data
+      # Script inicial: Cria as tabelas automaticamente ao iniciar
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
