@@ -1,7 +1,7 @@
 -- Garante que começamos limpo (opcional)
 DROP TABLE IF EXISTS T_OBRA_AUTORES;
 DROP TABLE IF EXISTS T_LIVRO;
-DROP TABLE IF EXISTS T_PESSOA;
+DROP TABLE IF EXISTS T_PESSOA;psql -U catalogo_user
 
 -- Tabela para a classe Pessoa (Autores/Diretores)
 CREATE TABLE T_PESSOA (
