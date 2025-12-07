@@ -20,7 +20,9 @@
                 <p class="col-md-8 fs-4">Gerencie seus livros, filmes e seus respectivos autores e diretores de forma simples e segura.</p>
                 
                 <hr class="my-4">
-                
+                <a href="livro" class="btn btn-success btn-lg px-4 gap-3">
+                    📖 Cadastrar Livro
+                </a>
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-start">
                     <a href="cadastro-pessoa.jsp" class="btn btn-primary btn-lg px-4 gap-3">
                         ➕ Cadastrar Pessoa (Autor/Diretor)
