@@ -68,4 +68,44 @@ CREATE TABLE T_PESSOA (
     nome_completo VARCHAR(255) NOT NULL,
     biografia TEXT,
     data_nascimento DATE
+<<<<<<< HEAD
 );
+=======
+);
+>>>>>>> 7b269c5fa9e77d0395eed47916a7d18172777fac
+
+
+📄 Atualização do README.md (Seção de Instalação)
+
+Substitua a seção "🛠️ Manual de Instalação e Execução" por esta versão detalhada e à prova de falhas:
+
+    Importante: Verifique o arquivo src/main/java/br/com/projeto/bap/util/ConnectionFactory.java e atualize a variável PASS com a senha do seu PostgreSQL local.
+
+3. Compilação (Build)
+
+Abra o terminal na raiz do projeto e execute o comando do Maven para gerar o pacote de distribuição (.war):
+
+O arquivo catalogo.war será gerado dentro da pasta target/.
+4. Deploy no Tomcat (Passo a Passo)
+
+Para evitar erros de caminho ou links simbólicos de IDEs, realizaremos o deploy manual:
+
+    Navegue até a pasta target/ do projeto e copie o arquivo catalogo.war.
+
+    Vá até o diretório de instalação do seu Apache Tomcat.
+
+    Abra a pasta webapps.
+
+    Cole o arquivo catalogo.war dentro de webapps.
+
+        Nota: Se houver uma pasta antiga chamada catalogo, apague-a antes de colar o novo arquivo.
+
+5. Execução
+
+    Inicie o Tomcat (via terminal bin/catalina.bat run ou via start da sua IDE apontando para a instalação local).
+
+    Aguarde a mensagem de "Server startup" no log.
+
+    Acesse a aplicação no navegador:
+
+👉 http://localhost:8080/catalogo/
