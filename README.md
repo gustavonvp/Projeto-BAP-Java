@@ -1,69 +1,71 @@
-# 📚 Projeto Integrador: Catálogo de Mídias (Livros, Filmes e Séries)
+# 📚 Projeto Integrador: Catálogo de Mídias (Livros e Filmes)
 
 > **Disciplina:** Projeto Integrador Transdisciplinar (PIT) - Ciência da Computação
 > **Metodologia:** Aprendizagem Baseada em Projetos (ABP)
 
-## 🎯 Sobre o Projeto
+## 🎯 Apresentação do Projeto
 
-Este projeto consiste no desenvolvimento de uma aplicação *web* completa para catalogação e gerenciamento de mídias (livros, filmes e séries). O sistema foi desenvolvido seguindo estritamente os princípios da **Programação Orientada a Objetos (POO)** e o padrão de arquitetura **MVC (Model-View-Controller)**, sem o uso de frameworks de alto nível, para demonstrar domínio dos fundamentos da linguagem Java.
+Este projeto consiste no desenvolvimento de uma aplicação *web* para catalogação e gerenciamento de mídias (livros, filmes e séries). [cite_start]O sistema foi desenvolvido seguindo estritamente os princípios da **Programação Orientada a Objetos (POO)** e o padrão de arquitetura **MVC (Model-View-Controller)**, atendendo aos requisitos da disciplina de PIT[cite: 57, 67].
 
-O objetivo principal é integrar competências de desenvolvimento *full-stack*, banco de dados e engenharia de software para solucionar um problema real de organização de acervo pessoal.
+[cite_start]O objetivo é integrar competências de desenvolvimento *full-stack*, demonstrando domínio sobre a persistência de dados e segurança da informação sem o uso de *frameworks* de alto nível (como Spring), privilegiando a implementação "raiz" com **Jakarta EE**[cite: 283].
 
 ---
 
-## 🚀 Tecnologias e Arquitetura
+## 🏗️ Arquitetura e Tecnologias
 
-O projeto foi construído sobre a plataforma **Jakarta EE** (Java Enterprise Edition), utilizando as seguintes tecnologias mandatórias:
+[cite_start]A solução foi construída sobre a especificação **Jakarta EE 10**, utilizando as seguintes tecnologias mandatórias descritas no material teórico [cite: 283-287]:
 
 * **Linguagem:** Java 17 (LTS)
-* **Front-end (View):** JSP (JavaServer Pages) + JSTL + HTML5/CSS3 (Bootstrap 5)
-* **Back-end (Controller):** Java Servlets (Jakarta Servlet API)
-* **Persistência (Model):** JDBC (Java Database Connectivity) puro com padrão DAO (Data Access Object)
-* **Banco de Dados:** PostgreSQL (via Docker)
-* **Gerenciamento de Dependências:** Apache Maven
+* **Front-end (View):** JSP (JavaServer Pages) + JSTL + HTML5/Bootstrap.
+* **Back-end (Controller):** Java Servlets (Jakarta Servlet API).
+* **Persistência (Model):** JDBC (Java Database Connectivity) puro com padrão DAO.
+* **Banco de Dados:** PostgreSQL (Instalação Local).
+* **Servidor de Aplicação:** Apache Tomcat 10.
 
-### 🏗️ Estrutura MVC Adotada
+### Estrutura MVC
 
-A aplicação segue a separação de responsabilidades exigida na documentação técnica:
+A aplicação respeita a separação de responsabilidades exigida:
 
-1.  **Model (Camada de Dados):** Classes POJO (`Pessoa`, `Livro`) e classes DAO (`PessoaDAO`) responsáveis pelo SQL e conexão via `ConnectionFactory`.
-2.  **View (Camada de Apresentação):** Arquivos `.jsp` que renderizam o HTML para o usuário.
-3.  **Controller (Camada de Controle):** `Servlets` que interceptam as requisições HTTP, validam dados e orquestram a comunicação entre a View e o Model.
-
----
-
-## ✨ Funcionalidades
-
-O sistema implementa o **CRUD** completo e funcionalidades de busca:
-
-* ✅ **Cadastro:** Inserção de novos itens e autores no banco de dados.
-* ✅ **Leitura (Listagem):** Visualização tabular de todos os itens catalogados.
-* ✅ **Edição:** Atualização de dados de obras e autores existentes.
-* ✅ **Exclusão:** Remoção de registros do catálogo.
-* ✅ **Busca:** Filtragem de itens por título ou autor.
-* ✅ **Associação:** Vínculo entre Obras e Autores (Relacionamento N:M).
+1.  **Model (DAO + POJO):** Encapsula o acesso a dados (`PessoaDAO`, `LivroDAO`) e regras de negócio. [cite_start]Utiliza JDBC para executar instruções SQL[cite: 287].
+2.  **View (JSP):** Responsável pela apresentação. [cite_start]Utiliza JSTL e Expression Language (EL) para exibir dados dinâmicos[cite: 285].
+3.  [cite_start]**Controller (Servlet):** Recebe requisições HTTP, processa a lógica e despacha para a View correta[cite: 284].
 
 ---
 
-## 🔒 Segurança e Robustez
+## 🔒 Segurança e Robustez (ISO/IEC 27001)
 
-Conforme os requisitos de segurança da informação (ISO/IEC 27001), o projeto implementa "Secure by Design":
+[cite_start]Em conformidade com as exigências de segurança do projeto[cite: 266], foram implementadas as seguintes medidas:
 
-* **Prevenção contra SQL Injection:** Todas as consultas ao banco de dados utilizam **`PreparedStatement`** com parâmetros tipados, impedindo a concatenação direta de strings e a injeção de comandos maliciosos.
-* **Tratamento de Exceções:** Uso de blocos `try-catch-finally` para garantir que conexões com o banco sejam fechadas e erros sejam tratados sem derrubar a aplicação.
+* **Prevenção contra SQL Injection:** Todas as operações de banco de dados utilizam **`PreparedStatement`**. [cite_start]Isso garante que entradas do usuário sejam tratadas como dados literais e não como comandos executáveis, mitigando a vulnerabilidade crítica apontada na Situação-Problema 1[cite: 302, 397].
+* [cite_start]**Tratamento de Exceções:** Implementação robusta de blocos `try-catch-finally` para garantir a integridade da aplicação e o fechamento correto de recursos (conexões), conforme exigido na Situação-Problema 2[cite: 204, 417].
 
 ---
 
-## 🛠️ Como Executar o Projeto
+## ✨ Funcionalidades Implementadas
 
-### Pré-requisitos
-* Java JDK 17
-* Apache Maven
-* Docker (para o Banco de Dados)
-* VS Code (ou Eclipse) com suporte a Tomcat
+[cite_start]O sistema atende aos requisitos funcionais mandatórios[cite: 73]:
 
-### 1. Configurar o Banco de Dados
-Suba o container do PostgreSQL utilizando o Docker:
+* ✅ **Interface Web:** Navegação intuitiva para gerenciamento do catálogo.
+* ✅ **CRUD Completo:** Cadastro, Leitura, Atualização e Exclusão de itens.
+* ✅ **Persistência:** Todos os dados são salvos em banco de dados relacional.
+* ✅ **Busca:** Funcionalidade de pesquisa por título ou autor.
 
-```bash
-docker-compose up -d db
+---
+
+## 🛠️ Manual de Instalação e Execução
+
+[cite_start]Este guia atende ao requisito de "Manual do usuário simplificado"[cite: 345].
+
+### 1. Configuração do Banco de Dados
+Certifique-se de ter o **PostgreSQL** instalado localmente.
+1.  Abra o **pgAdmin** ou terminal SQL.
+2.  Crie um banco de dados chamado `catalogo_db`.
+3.  Execute o script de criação das tabelas (disponível em `src/main/resources/schema.sql` ou abaixo):
+
+```sql
+CREATE TABLE T_PESSOA (
+    id SERIAL PRIMARY KEY,
+    nome_completo VARCHAR(255) NOT NULL,
+    biografia TEXT,
+    data_nascimento DATE
+);
