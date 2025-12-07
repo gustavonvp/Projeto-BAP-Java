@@ -1,8 +1,12 @@
 package br.com.projeto.bap.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import br.com.projeto.bap.model.Pessoa;
 import br.com.projeto.bap.util.ConnectionFactory;
@@ -27,5 +31,37 @@ public class PessoaDao {
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao salvar pessoa: " + e.getMessage(), e);
         }
+    }
+
+
+
+    private static final String SQL_LIST_ALL = "SELECT * FROM T_PESSOA ORDER BY nome_completo";
+
+    public List<Pessoa> listarTodos() {
+        List<Pessoa> lista = new ArrayList<>();
+        
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_LIST_ALL);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Pessoa p = new Pessoa();
+                p.setId(rs.getLong("id"));
+                p.setNomeCompleto(rs.getString("nome_completo"));
+                p.setBiografia(rs.getString("biografia"));
+                
+                // Conversão segura de data
+                Date dataSql = rs.getDate("data_nascimento");
+                if (dataSql != null) {
+                    p.setDataNascimento(dataSql.toLocalDate());
+                }
+                
+                lista.add(p);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar pessoas", e);
+        }
+        return lista;
     }
 }

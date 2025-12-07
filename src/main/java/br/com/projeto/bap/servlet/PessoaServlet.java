@@ -3,9 +3,11 @@ package br.com.projeto.bap.servlet;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 import br.com.projeto.bap.dao.PessoaDao;
 import br.com.projeto.bap.model.Pessoa;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -62,5 +64,23 @@ public class PessoaServlet extends HttpServlet {
             // Se der erro, redireciona com mensagem de erro
             response.sendRedirect("cadastro-pessoa.jsp?msg=erro");
         }
+    }
+
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        PessoaDao dao = new PessoaDao();
+        
+        // 1. Busca a lista no banco
+        List<Pessoa> listaPessoas = dao.listarTodos();
+        
+        // 2. Pendura a lista na requisição para o JSP usar
+        request.setAttribute("listaPessoas", listaPessoas);
+        
+        // 3. Encaminha para uma página JSP de listagem (que vamos criar)
+        RequestDispatcher dispatcher = request.getRequestDispatcher("lista-pessoas.jsp");
+        dispatcher.forward(request, response);
     }
 }

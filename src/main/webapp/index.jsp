@@ -25,10 +25,18 @@
                     <a href="cadastro-pessoa.jsp" class="btn btn-primary btn-lg px-4 gap-3">
                         ➕ Cadastrar Pessoa (Autor/Diretor)
                     </a>
+                    <a href="pessoa" class="btn btn-outline-dark btn-lg px-4">
+                        📋 Ver Lista Completa
+                    </a>
                     <button type="button" class="btn btn-outline-secondary btn-lg px-4" disabled>
                         ➕ Cadastrar Livro (Em Breve)
                     </button>
+                    
                 </div>
+          
+                    
+            
+
             </div>
         </div>
     </div>
