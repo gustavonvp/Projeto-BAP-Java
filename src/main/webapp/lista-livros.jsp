@@ -64,7 +64,11 @@
                                 <td><span class="badge bg-secondary">${livro.genero}</span></td>
                                 <td class="text-end">
                                     <button class="btn btn-sm btn-outline-primary">Editar</button>
-                                    <button class="btn btn-sm btn-outline-danger">Excluir</button>
+    
+                                    <a href="livro?acao=excluir&id=${livro.id}" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">
+                                                Excluir
+                                    </a>
                                 </td>
                             </tr>
                         </c:forEach>
