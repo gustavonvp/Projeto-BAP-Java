@@ -50,23 +50,43 @@ public class LivroServlet extends HttpServlet {
             // 3. Encaminha para a tela de listagem
             RequestDispatcher dispatcher = request.getRequestDispatcher("lista-livros.jsp");
             dispatcher.forward(request, response);
-        }else if ("buscar".equals(acao)) {
-        // --- NOVA LÓGICA DE BUSCA ---
-        String termo = request.getParameter("termo");
-        List<Livro> listaFiltrada;
+        }
         
-        if (termo != null && !termo.trim().isEmpty()) {
-            listaFiltrada = livroDao.buscarPorTermo(termo);
-        } else {
+        else if ("buscar".equals(acao)) {
+            // --- NOVA LÓGICA DE BUSCA ---
+            String termo = request.getParameter("termo");
+            List<Livro> listaFiltrada;
+        
+            if (termo != null && !termo.trim().isEmpty()) {
+                listaFiltrada = livroDao.buscarPorTermo(termo);
+            }
+            else 
+            {
             // Se a busca estiver vazia, traz tudo
             listaFiltrada = livroDao.listarTodos();
         }
         
-        // Reutilizamos a MESMA página de lista para mostrar o resultado
-        request.setAttribute("listaLivros", listaFiltrada);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("lista-livros.jsp");
-        dispatcher.forward(request, response);
-        } else {
+            // Reutilizamos a MESMA página de lista para mostrar o resultado
+            request.setAttribute("listaLivros", listaFiltrada);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("lista-livros.jsp");
+            dispatcher.forward(request, response);
+        }
+        
+        else if ("excluir".equals(acao)) 
+        {
+            // --- NOVA LÓGICA DE EXCLUSÃO ---
+            try {
+                Long id = Long.parseLong(request.getParameter("id"));
+                livroDao.excluir(id);
+            }catch (NumberFormatException e) {
+                System.out.println("ID inválido para exclusão");
+            }
+        
+            // Após excluir, recarrega a lista
+            response.sendRedirect("livro?acao=listar&msg=excluido");
+        } 
+        
+        else {
             // FLUXO DE CADASTRO (Padrão)
             // Carrega os autores para preencher o <select> do formulário
             PessoaDao pessoaDao = new PessoaDao();
@@ -77,6 +97,8 @@ public class LivroServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("cadastro-livro.jsp");
             dispatcher.forward(request, response);
         }
+
+
     }
 
     // POST: Recebe os dados do formulário para Salvar

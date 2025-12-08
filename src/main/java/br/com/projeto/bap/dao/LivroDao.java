@@ -29,6 +29,12 @@ public class LivroDao {
     private static final String SQL_INSERT_AUTORES = 
         "INSERT INTO T_OBRA_AUTORES (id_livro, id_pessoa) VALUES (?, ?)";
 
+    private static final String SQL_DELETE_VINCULOS = 
+        "DELETE FROM T_OBRA_AUTORES WHERE id_livro = ?";
+    
+    private static final String SQL_DELETE_LIVRO = 
+        "DELETE FROM T_LIVRO WHERE id = ?";
+
     public void salvar(Livro livro, List<Long> idsAutores) {
         Connection conn = null;
         PreparedStatement stmtLivro = null;
@@ -174,6 +180,44 @@ private static final String SQL_LIST_ALL = "SELECT * FROM T_LIVRO ORDER BY titul
             throw new RuntimeException("Erro na busca de livros", e);
         }
         return livros;
+    }
+
+    /**
+     * Remove um livro e seus relacionamentos do banco de dados.
+     * Primeiro remove da tabela de junção para manter a integridade referencial.
+     */
+    public void excluir(Long id) {
+        Connection conn = null;
+        PreparedStatement stmtVinculo = null;
+        PreparedStatement stmtLivro = null;
+
+        try {
+            conn = ConnectionFactory.getConnection();
+            conn.setAutoCommit(false); // Inicia transação
+
+            // 1. Remove os vínculos com autores
+            stmtVinculo = conn.prepareStatement(SQL_DELETE_VINCULOS);
+            stmtVinculo.setLong(1, id);
+            stmtVinculo.executeUpdate();
+
+            // 2. Remove o livro
+            stmtLivro = conn.prepareStatement(SQL_DELETE_LIVRO);
+            stmtLivro.setLong(1, id);
+            stmtLivro.executeUpdate();
+
+            conn.commit(); // Confirma
+            
+        } catch (SQLException e) {
+            try { if (conn != null) conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            throw new RuntimeException("Erro ao excluir livro", e);
+        } finally {
+            // Fecha recursos
+            try {
+                if (stmtVinculo != null) stmtVinculo.close();
+                if (stmtLivro != null) stmtLivro.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) { e.printStackTrace(); }
+        }
     }
 
 }
