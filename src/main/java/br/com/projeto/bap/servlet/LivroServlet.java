@@ -84,8 +84,27 @@ public class LivroServlet extends HttpServlet {
         
             // Após excluir, recarrega a lista
             response.sendRedirect("livro?acao=listar&msg=excluido");
-        } 
+        }
+        else if ("editar".equals(acao)) {
+            // 1. Pega o ID
+            Long id = Long.parseLong(request.getParameter("id"));
         
+            // 2. Busca o livro completo (com autores)
+            Livro livro = livroDao.buscarPorId(id);
+        
+            // 3. Busca LISTA TOTAL de autores (para preencher as opções do select)
+            PessoaDao pessoaDao = new PessoaDao();
+            List<Pessoa> listaAutores = pessoaDao.listarTodos();
+        
+            // 4. Envia tudo para o JSP
+            request.setAttribute("livro", livro); // O livro a ser editado
+            request.setAttribute("listaAutores", listaAutores); // Todas as opções possíveis
+        
+            // 5. Reusa a página de cadastro
+            RequestDispatcher dispatcher = request.getRequestDispatcher("cadastro-livro.jsp");
+            dispatcher.forward(request, response);
+        
+        }
         else {
             // FLUXO DE CADASTRO (Padrão)
             // Carrega os autores para preencher o <select> do formulário
@@ -139,8 +158,22 @@ public class LivroServlet extends HttpServlet {
             }
         }
 
+        // NOVO: Pega o ID (campo oculto no form)
+        String idStr = request.getParameter("id");
+        Long id = null;
+        
+        // Só converte para Long se tiver texto numérico real
+        if (idStr != null && !idStr.trim().isEmpty()) {
+            try {
+                id = Long.parseLong(idStr);
+            } catch (NumberFormatException e) {
+            System.out.println("ID inválido ou vazio, será tratado como novo cadastro.");
+            }
+        }
+        
         // 3. Criar o objeto Livro
         Livro livro = new Livro();
+        livro.setId(id);
         livro.setTitulo(titulo);
         livro.setEditora(editora);
         livro.setIsbn(isbn);
@@ -148,16 +181,26 @@ public class LivroServlet extends HttpServlet {
         livro.setGenero(genero);
         livro.setSinopse(sinopse);
 
+
+
         // 4. Chamar o DAO para salvar (Livro + Relacionamentos)
         LivroDao dao = new LivroDao();
         try {
-            dao.salvar(livro, idsAutores);
-            // Sucesso: volta para home com mensagem
-            response.sendRedirect("index.jsp?msg=livroSalvo");
+            if (livro.getId() == null) {
+                dao.salvar(livro, idsAutores); // CREATE
+            } 
+            else {
+                dao.atualizar(livro, idsAutores); // UPDATE
+            }
+            response.sendRedirect("index.jsp?msg=sucesso");
         } catch (Exception e) {
             e.printStackTrace();
             // Erro: volta para o formulário (idealmente manteria os dados preenchidos)
             response.sendRedirect("livro?msg=erro");
         }
+
+
+            
+
     }
 }

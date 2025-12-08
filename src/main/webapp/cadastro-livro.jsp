@@ -26,20 +26,21 @@
                     <div class="card-body">
                         
                         <form action="livro" method="post">
+                            <input type="hidden" name="id" value="${livro.id}">
                             
                             <div class="mb-3">
                                 <label class="form-label">Título da Obra *</label>
-                                <input type="text" class="form-control" name="titulo" required>
+                                <input type="text" class="form-control" name="titulo" value="${livro.titulo}" required>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Editora</label>
-                                    <input type="text" class="form-control" name="editora">
+                                    <input type="text" class="form-control" name="editora" value="${livro.editora}">
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Ano</label>
-                                    <input type="number" class="form-control" name="ano">
+                                    <input type="number" class="form-control" name="ano" value="${livro.ano}">
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label">Gênero</label>
@@ -53,19 +54,29 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">Sinopse</label>
+                                <textarea class="form-control" name="sinopse" rows="3">${livro.sinopse}</textarea>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label fw-bold text-primary">Selecione os Autores</label>
                                 <div class="form-text mb-1">Segure a tecla <code>Ctrl</code> para selecionar múltiplos.</div>
                                 
                                 <select class="form-select" name="autoresIds" multiple size="5">
-                                    <c:forEach items="${listaAutores}" var="autor">
-                                        <option value="${autor.id}">
-                                            ${autor.nomeCompleto}
+                                    <c:forEach items="${listaAutores}" var="opcaoAutor">
+                                    
+                                        <c:set var="estaSelecionado" value="false" />
+                                            <c:if test="${not empty livro.autores}">
+                                                <c:forEach items="${livro.autores}" var="autorDoLivro">
+                                                    <c:if test="${autorDoLivro.id eq opcaoAutor.id}">
+                                                        <c:set var="estaSelecionado" value="true" />
+                                                    </c:if>
+                                                </c:forEach>
+                                            </c:if>
+                                        <option value="${opcaoAutor.id}" ${estaSelecionado ? 'selected' : ''}>
+                                            ${opcaoAutor.nomeCompleto}
                                         </option>
                                     </c:forEach>
-                                    
-                                    <c:if test="${empty listaAutores}">
-                                        <option disabled>Nenhum autor cadastrado. Cadastre um primeiro.</option>
-                                    </c:if>
                                 </select>
                             </div>
 
