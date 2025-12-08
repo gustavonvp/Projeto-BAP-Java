@@ -40,6 +40,15 @@
                                 <textarea class="form-control" id="bio" name="biografia" rows="3">${pessoa.biografia}</textarea>
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label">Foto de Perfil (URL)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">📷</span>
+                                    <input type="url" class="form-control" name="fotoUrl" 
+                                        value="${pessoa.fotoUrl}" placeholder="http://...">
+                                </div>
+                            </div>
+
                             <div class="d-flex justify-content-between">
                                 <a href="index.jsp" class="btn btn-secondary">Cancelar</a>
                                 <button type="submit" class="btn btn-success">${empty pessoa.id ? 'Salvar Novo' : 'Atualizar Dados'}</button>

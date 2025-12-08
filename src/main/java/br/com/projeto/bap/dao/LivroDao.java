@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ import br.com.projeto.bap.util.ConnectionFactory;
 public class LivroDao {
 
     private static final String SQL_INSERT_LIVRO = 
-        "INSERT INTO T_LIVRO (titulo, editora, isbn, ano, genero, sinopse) VALUES (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO T_LIVRO (titulo, editora, isbn, ano, genero, sinopse, capa_url) VALUES (?, ?, ?, ?, ?, ?, ?)";
     
     private static final String SQL_INSERT_AUTORES = 
         "INSERT INTO T_OBRA_AUTORES (id_livro, id_pessoa) VALUES (?, ?)";
@@ -48,8 +47,9 @@ public class LivroDao {
         "SELECT id_pessoa FROM T_OBRA_AUTORES WHERE id_livro = ?";    
 
 
+// ATENÇÃO: Tem uma vírgula depois de sinopse=?
     private static final String SQL_UPDATE_LIVRO = 
-        "UPDATE T_LIVRO SET titulo=?, editora=?, isbn=?, ano=?, genero=?, sinopse=? WHERE id=?";    
+        "UPDATE T_LIVRO SET titulo=?, editora=?, isbn=?, ano=?, genero=?, sinopse=?, capa_url=? WHERE id=?";
 
         
     // Query com JOIN para buscar tanto no Título do Livro quanto no Nome do Autor
@@ -84,7 +84,7 @@ public class LivroDao {
             if (livro.getAno() != null) stmtLivro.setInt(4, livro.getAno()); else stmtLivro.setNull(4, java.sql.Types.INTEGER);
             stmtLivro.setString(5, livro.getGenero());
             stmtLivro.setString(6, livro.getSinopse());
-            
+            stmtLivro.setString(7, livro.getCapaUrl());
             stmtLivro.executeUpdate();
 
             // 3. Recupera o ID gerado para o Livro
@@ -151,9 +151,10 @@ public class LivroDao {
                 livro.setAno(rs.getInt("ano"));
                 livro.setGenero(rs.getString("genero"));
                 livro.setIsbn(rs.getString("isbn"));
+                livro.setSinopse(rs.getString("sinopse"));
                 // Nota: Por performance, não carregamos a lista de autores na listagem geral.
                 // Isso seria feito num método 'buscarPorId' (Ver Detalhes).
-                
+                livro.setCapaUrl(rs.getString("capa_url"));
                 livros.add(livro);
             }
 
@@ -190,6 +191,8 @@ public class LivroDao {
                     livro.setAno(rs.getInt("ano"));
                     livro.setGenero(rs.getString("genero"));
                     livro.setIsbn(rs.getString("isbn"));
+                    livro.setSinopse(rs.getString("sinopse"));
+                    livro.setCapaUrl(rs.getString("capa_url"));
                     livros.add(livro);
                 }
             }
@@ -259,6 +262,7 @@ public class LivroDao {
                         livro.setAno(rs.getInt("ano"));
                         livro.setGenero(rs.getString("genero"));
                         livro.setSinopse(rs.getString("sinopse"));
+                        livro.setCapaUrl(rs.getString("capa_url"));
                     }
                 }
             }
@@ -287,7 +291,8 @@ public class LivroDao {
     /**
      * Atualiza os dados do livro e refaz os vínculos de autores.
      */
-    public void atualizar(Livro livro, List<Long> idsAutores) {
+
+public void atualizar(Livro livro, List<Long> idsAutores) {
         Connection conn = null;
         PreparedStatement stmtLivro = null;
         PreparedStatement stmtDel = null;
@@ -299,24 +304,32 @@ public class LivroDao {
 
             // 1. Atualiza dados do Livro
             stmtLivro = conn.prepareStatement(SQL_UPDATE_LIVRO);
+            
             stmtLivro.setString(1, livro.getTitulo());
             stmtLivro.setString(2, livro.getEditora());
             stmtLivro.setString(3, livro.getIsbn());
-            if (livro.getAno() != null) stmtLivro.setInt(4, livro.getAno()); else stmtLivro.setNull(4, Types.INTEGER);
+            
+            if (livro.getAno() != null) {
+                stmtLivro.setInt(4, livro.getAno());
+            } else {
+                stmtLivro.setNull(4, java.sql.Types.INTEGER);
+            }
+            
             stmtLivro.setString(5, livro.getGenero());
             stmtLivro.setString(6, livro.getSinopse());
-            stmtLivro.setLong(7, livro.getId());
+            stmtLivro.setString(7, livro.getCapaUrl()); // <--- Índice 7
+            
+            stmtLivro.setLong(8, livro.getId()); // <--- Índice 8 (O WHERE id=?)
+            
             stmtLivro.executeUpdate();
 
             // 2. Atualiza Autores: Estratégia "Limpar e Inserir de novo"
-            // Primeiro apaga os vínculos antigos
-            stmtDel = conn.prepareStatement(SQL_DELETE_VINCULOS); // Reusa SQL do excluir
+            stmtDel = conn.prepareStatement(SQL_DELETE_VINCULOS);
             stmtDel.setLong(1, livro.getId());
             stmtDel.executeUpdate();
 
-            // Depois insere os novos selecionados
             if (idsAutores != null && !idsAutores.isEmpty()) {
-                stmtIns = conn.prepareStatement(SQL_INSERT_AUTORES); // Reusa SQL do salvar
+                stmtIns = conn.prepareStatement(SQL_INSERT_AUTORES);
                 for (Long idAutor : idsAutores) {
                     stmtIns.setLong(1, livro.getId());
                     stmtIns.setLong(2, idAutor);
@@ -330,8 +343,12 @@ public class LivroDao {
             try { if (conn != null) conn.rollback(); } catch (SQLException ex) {}
             throw new RuntimeException("Erro ao atualizar livro", e);
         } finally {
-            // Fechar recursos... (simplificado)
-            try { if (conn != null) conn.close(); } catch (SQLException e) {}
+            try {
+                if (stmtLivro != null) stmtLivro.close();
+                if (stmtDel != null) stmtDel.close();
+                if (stmtIns != null) stmtIns.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 

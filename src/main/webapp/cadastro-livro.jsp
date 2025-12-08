@@ -59,6 +59,16 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">Link da Imagem da Capa</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">🔗</span>
+                                    <input type="url" class="form-control" name="capaUrl" 
+                                        value="${livro.capaUrl}" 
+                                        placeholder="Cole aqui o link da imagem (http://...)">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label fw-bold text-primary">Selecione os Autores</label>
                                 <div class="form-text mb-1">Segure a tecla <code>Ctrl</code> para selecionar múltiplos.</div>
                                 
