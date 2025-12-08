@@ -8,6 +8,7 @@ public class Pessoa {
     private String nomeCompleto;
     private String biografia;
     private LocalDate dataNascimento;
+    private String fotoUrl;
 
     public Pessoa() {}
     
@@ -27,6 +28,8 @@ public class Pessoa {
     public void setBiografia(String biografia) { this.biografia = biografia; }
     public LocalDate getDataNascimento() { return dataNascimento; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
-    
+    // NOVOS
+    public String getFotoUrl() { return fotoUrl; }
+    public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }    
 
 }

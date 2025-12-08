@@ -28,7 +28,9 @@ public class PessoaTest {
     @Test
     public void testeSalvarPessoa() {
         // Cria um cenário de teste [cite: 327]
-        Pessoa p = new Pessoa("Autor Teste JUnit", "Bio gerada pelo teste", LocalDate.of(1990, 1, 1));
+        Pessoa p = new Pessoa("Margareth Mitchellt", "Margaret nasceu em Atlanta, em 1900. Era filha do advogado Eugene Muse Mitchell, diretor da Sociedade de História de Atlanta, e de Mary Isabelle \"Maybelle\" Stephens, uma sufragista. Margaret cresceu ouvindo histórias sobre a Guerra de Secessão contadas por seus parentes e por veteranos confederados. Obcecada por escrever, conta-se que ainda em criança costumava levantar-se no meio da noite para registrar ideias para histórias e peças teatrais. Todavia, Margaret nunca foi exatamente uma aluna brilhante.\r\n" + //
+                        "\r\n" + //
+                        "No outono de 1918, ingressou no Smith College, de Northampton, Massachusetts, pouco antes da entrada dos Estados Unidos na Primeira Guerra Mundial. Durante o conflito, seu noivo, o tenente Clifford Henry, foi morto em combate na França e em janeiro de 1919, Maybelle Stephens faleceu durante a epidemia de Gripe Espanhola. Este último acontecimento obrigou Margaret a abandonar os estudos e voltar para casa, mas ela não possuía temperamento para dedicar-se apenas a cuidar do pai e do irmão mais velho. Logo, seu comportamento de melindrosa e seu trabalho em projetos sociais junto a população negra de Atlanta, começaram a escandalizar a sociedade conservadora da cidade.", LocalDate.of(1900, 11, 8));
         PessoaDao dao = new PessoaDao();
 
         // Executa a ação e verifica se não dá erro

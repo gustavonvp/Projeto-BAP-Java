@@ -7,6 +7,24 @@
     <meta charset="UTF-8">
     <title>Catálogo de Livros</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .hover-effect {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+        }
+        .hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        }
+        .card-img-wrapper {
+            height: 300px; 
+            overflow: hidden; 
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body class="bg-light">
 
@@ -25,7 +43,7 @@
             <a href="livro" class="btn btn-success">➕ Novo Livro</a>
         </div>
 
-        <div class="card mb-4">
+        <div class="card mb-4 shadow-sm">
             <div class="card-body">
                 <form action="livro" method="get" class="row g-2">
                     <input type="hidden" name="acao" value="buscar">
@@ -41,54 +59,61 @@
             </div>
         </div>
 
-        <div class="card shadow">
-            <div class="card-body p-0">
-                <table class="table table-striped table-hover mb-0">
-                    <thead class="table-success">
-                        <tr>
-                            <th>ID</th>
-                            <th>Título</th>
-                            <th>Editora</th>
-                            <th>Ano</th>
-                            <th>Gênero</th>
-                            <th class="text-end">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach items="${listaLivros}" var="livro">
-                            <tr>
-                                <td>${livro.id}</td>
-                                <td><strong>${livro.titulo}</strong></td>
-                                <td>${livro.editora}</td>
-                                <td>${livro.ano}</td>
-                                <td><span class="badge bg-secondary">${livro.genero}</span></td>
-                                <td class="text-end">
-                                 
-                                    <a href="livro?acao=editar&id=${livro.id}" class="btn btn-sm btn-outline-primary">Editar</a>
-    
-                                    <a href="livro?acao=excluir&id=${livro.id}" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Tem certeza que deseja excluir este livro?');">
-                                                Excluir
-                                    </a>
-                                </td>
-                            </tr>
-                        </c:forEach>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            
+            <c:forEach items="${listaLivros}" var="livro">
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 hover-effect">
                         
-                        <c:if test="${empty listaLivros}">
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                    Nenhum livro encontrado. Comece a catalogar!
-                                </td>
-                            </tr>
-                        </c:if>
-                    </tbody>
-                </table>
-            </div>
+                        <div class="card-img-wrapper">
+                            <c:choose>
+                                <c:when test="${not empty livro.capaUrl}">
+                                    <img src="${livro.capaUrl}" class="card-img-top h-100" style="object-fit: cover;" alt="Capa do Livro">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="text-center text-muted">
+                                        <h1 class="display-4">📖</h1>
+                                        <small>Sem Capa</small>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate" title="${livro.titulo}">
+                                ${livro.titulo}
+                            </h5>
+                            <p class="card-text mb-1">
+                                <small class="text-muted">Editora:</small> ${livro.editora}
+                            </p>
+                            <span class="badge bg-primary mb-2">${livro.genero}</span>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                            <a href="livro?acao=editar&id=${livro.id}" class="btn btn-outline-primary btn-sm">
+                                Editar
+                            </a>
+                            <a href="livro?acao=excluir&id=${livro.id}" 
+                               class="btn btn-outline-danger btn-sm"
+                               onclick="return confirm('Tem certeza que deseja excluir este livro?');">
+                               Excluir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </c:forEach>
+            
+            <c:if test="${empty listaLivros}">
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted fs-4">Nenhum livro encontrado.</p>
+                </div>
+            </c:if>
+
         </div>
-        
-        <div class="mt-3 text-center">
-            <a href="index.jsp" class="btn btn-secondary">Voltar</a>
+        <div class="mt-4 text-center pb-5">
+            <a href="index.jsp" class="btn btn-secondary">Voltar ao Início</a>
         </div>
     </div>
+
 </body>
 </html>

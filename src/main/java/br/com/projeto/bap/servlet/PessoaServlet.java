@@ -49,13 +49,15 @@ public class PessoaServlet extends HttpServlet {
             }
         }
 
+        String fotoUrl = request.getParameter("fotoUrl");
+
         // 3. Montar o Objeto (Model)
         Pessoa pessoa = new Pessoa();
         pessoa.setId(id);
         pessoa.setNomeCompleto(nome);
         pessoa.setBiografia(biografia);
         pessoa.setDataNascimento(dataNascimento);
-
+        pessoa.setFotoUrl(fotoUrl);
         // 4. Chamar o DAO para salvar no Banco (Persistência) // 4. Decidir: Salvar (Novo) ou Atualizar (Existente)
         PessoaDao dao = new PessoaDao(); 
         if (pessoa.getId() == null) {
@@ -91,7 +93,8 @@ public class PessoaServlet extends HttpServlet {
         
         String acao = request.getParameter("acao");
         String idStr = request.getParameter("id");
-    
+        String termo = request.getParameter("termo"); 
+       
         // --- DEBUG NO CONSOLE DO TOMCAT ---
         System.out.println(">>> PessoaServlet doGet invocado!");
         System.out.println(">>> Ação recebida: " + acao);
@@ -119,8 +122,23 @@ public class PessoaServlet extends HttpServlet {
                 e.printStackTrace();
                 response.sendRedirect("pessoa?erro=idInvalido");
             }
+            
 
-        } else if ("excluir".equals(acao)) {
+        } 
+
+        else if ("buscar".equals(acao)) {
+        // --- NOVA LÓGICA DE BUSCA ---
+        List<Pessoa> lista;
+        if (termo != null && !termo.trim().isEmpty()) {
+            lista = dao.buscarPorTermo(termo); // Chama método novo do DAO
+        } else {
+            lista = dao.listarTodos();
+        }
+        request.setAttribute("listaPessoas", lista);
+        request.getRequestDispatcher("lista-pessoas.jsp").forward(request, response);
+        }
+        
+        else if ("excluir".equals(acao)) {
             // LÓGICA DE EXCLUIR
             try {
                 // Usa a variável idStr novamente

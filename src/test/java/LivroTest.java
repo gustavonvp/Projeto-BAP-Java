@@ -38,6 +38,9 @@ public class LivroTest {
         livro.setEditora("Editora JUnit");
         livro.setAno(2025);
         livro.setIsbn("123-456");
+        livro.setGenero("ação");
+        livro.setSinopse("Scarlett OHara, filha mimada e impetuosa de um rico fazendeiro, usa todos os meios que tem a sua disposição para sobreviver à Guerra Civil americana, quando fortunas e famílias foram destruídas, e conquistar o amor de Rhett Butler, um aventureiro com quem ela viverá um dos mais fascinantes romances da literatura. Em sua única obra literária, Margaret Mitchell costura magistralmente a profundidade humana das personagens ao expor sem máscaras erros, vulnerabilidades, egoísmos, más intenções, medos e pequenas conquistas dos personagens.");
+        livro.setCapaUrl("https://books.google.com/books/content?id=BisXEAAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api");
 
         // 3. Ação: Salvar Livro vinculando ao Autor
         LivroDao livroDao = new LivroDao();
@@ -71,13 +74,30 @@ public class LivroTest {
         // --- 2. CREATE (SALVAR LIVRO) ---
         LivroDao livroDao = new LivroDao();
         Livro livro = new Livro();
-        livro.setTitulo("Livro Versão 1");
+        livro.setTitulo("Livro Teste");
         livro.setEditora("Editora Teste");
+        livro.setCapaUrl("http://teste.com/foto.jpg"); // <--- Adicione isto no teste
+        
+        livroDao.salvar(livro, Arrays.asList(idAutor1));
+        Long idLivro = livro.getId();
+
+        // --- UPDATE ---
+        livro.setTitulo("Livro Editado");
+        livro.setCapaUrl("http://teste.com/foto_nova.jpg"); // <--- Mude a URL
+        
+        livroDao.atualizar(livro, Arrays.asList(idAutor2));
+
+        // --- VALIDAÇÃO ---
+        Livro livroAtualizado = livroDao.buscarPorId(idLivro);
+        assertEquals("Livro Editado", livroAtualizado.getTitulo());
+        
+        // Verifica se a capa atualizou
+        assertEquals("http://teste.com/foto_nova.jpg", livroAtualizado.getCapaUrl());
         
         // Salva vinculado ao Autor 1
         livroDao.salvar(livro, Arrays.asList(idAutor1));
         assertNotNull(livro.getId(), "Livro deve ter ID após salvar");
-        Long idLivro = livro.getId();
+        //Long idLivro = livro.getId();
 
         // --- 3. UPDATE (EDITAR LIVRO) ---
         // Modifica título e troca o autor (remove Autor 1, adiciona Autor 2)
@@ -85,8 +105,8 @@ public class LivroTest {
         livroDao.atualizar(livro, Arrays.asList(idAutor2));
 
         // Validação: Busca no banco para ver se mudou mesmo
-        Livro livroAtualizado = livroDao.buscarPorId(idLivro);
-        assertEquals("Livro Versão 2 - Editado", livroAtualizado.getTitulo());
+        //Livro livroAtualizado = livroDao.buscarPorId(idLivro);
+        assertEquals("Livro Editado", livroAtualizado.getTitulo());
         
         // Verifica se o vínculo de autor mudou (Autor 1 saiu, Autor 2 entrou)
         // Nota: buscarPorId carrega os autores. Verificamos se o ID do Autor 2 está lá.

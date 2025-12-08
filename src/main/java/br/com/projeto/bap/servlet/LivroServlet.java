@@ -131,6 +131,7 @@ public class LivroServlet extends HttpServlet {
         String isbn = request.getParameter("isbn");
         String genero = request.getParameter("genero");
         String sinopse = request.getParameter("sinopse");
+        String capa_url = request.getParameter("capa_url");
         
         // Converter Ano (tratar erro se vazio)
         Integer ano = null;
@@ -180,6 +181,7 @@ public class LivroServlet extends HttpServlet {
         livro.setAno(ano);
         livro.setGenero(genero);
         livro.setSinopse(sinopse);
+        livro.setCapaUrl(capa_url);
 
 
 

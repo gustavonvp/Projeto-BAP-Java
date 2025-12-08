@@ -11,6 +11,7 @@ public class Livro {
     private Integer ano;
     private String genero;
     private String sinopse;
+    private String capaUrl;
     
     // Relacionamento: Um livro tem uma lista de Autores (Pessoas)
     private List<Pessoa> autores = new ArrayList<>();
@@ -41,4 +42,8 @@ public class Livro {
 
     public List<Pessoa> getAutores() { return autores; }
     public void setAutores(List<Pessoa> autores) { this.autores = autores; }
+
+
+    public String getCapaUrl() { return capaUrl; }
+    public void setCapaUrl(String capaUrl) { this.capaUrl = capaUrl; }
 }
