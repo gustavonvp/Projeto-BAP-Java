@@ -64,4 +64,71 @@ public class PessoaDao {
         }
         return lista;
     }
+
+
+
+    private static final String SQL_UPDATE = "UPDATE T_PESSOA SET nome_completo=?, biografia=?, data_nascimento=? WHERE id=?";
+    private static final String SQL_DELETE = "DELETE FROM T_PESSOA WHERE id=?";
+    private static final String SQL_SELECT_ID = "SELECT * FROM T_PESSOA WHERE id=?";
+    // Para excluir pessoa, precisamos limpar os vínculos dela com livros primeiro
+    private static final String SQL_DELETE_VINCULOS_PESSOA = "DELETE FROM T_OBRA_AUTORES WHERE id_pessoa=?";
+
+    public Pessoa buscarPorId(Long id) {
+        Pessoa p = null;
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ID)) {
+            stmt.setLong(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    p = new Pessoa();
+                    p.setId(rs.getLong("id"));
+                    p.setNomeCompleto(rs.getString("nome_completo"));
+                    p.setBiografia(rs.getString("biografia"));
+                    Date dataSql = rs.getDate("data_nascimento");
+                    if (dataSql != null) p.setDataNascimento(dataSql.toLocalDate());
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar pessoa", e);
+        }
+        return p;
+    }
+
+    public void atualizar(Pessoa pessoa) {
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE)) {
+            
+            stmt.setString(1, pessoa.getNomeCompleto());
+            stmt.setString(2, pessoa.getBiografia());
+            stmt.setDate(3, pessoa.getDataNascimento() != null ? Date.valueOf(pessoa.getDataNascimento()) : null);
+            stmt.setLong(4, pessoa.getId());
+            
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar pessoa", e);
+        }
+    }
+
+    public void excluir(Long id) {
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            conn.setAutoCommit(false); // Transação para garantir limpeza
+            
+            // 1. Remove vínculos com livros (T_OBRA_AUTORES)
+            try (PreparedStatement stmtVinc = conn.prepareStatement(SQL_DELETE_VINCULOS_PESSOA)) {
+                stmtVinc.setLong(1, id);
+                stmtVinc.executeUpdate();
+            }
+
+            // 2. Remove a Pessoa
+            try (PreparedStatement stmtPessoa = conn.prepareStatement(SQL_DELETE)) {
+                stmtPessoa.setLong(1, id);
+                stmtPessoa.executeUpdate();
+            }
+            
+            conn.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao excluir pessoa", e);
+        }
+    }
+
 }

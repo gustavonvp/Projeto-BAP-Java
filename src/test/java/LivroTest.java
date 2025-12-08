@@ -3,7 +3,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import br.com.projeto.bap.dao.LivroDao;
@@ -48,4 +51,58 @@ public class LivroTest {
         assertNotNull(livro.getId(), "O ID do livro não deveria ser nulo após salvar");
         System.out.println("Livro salvo com sucesso! ID Gerado: " + livro.getId());
     }
+
+
+@Test
+    public void testeCicloDeVidaLivro() {
+        // --- 1. PREPARAÇÃO (CRIAR AUTORES) ---
+        PessoaDao pessoaDao = new PessoaDao();
+        Pessoa autor1 = new Pessoa("Autor Original", "Bio 1", LocalDate.now());
+        Pessoa autor2 = new Pessoa("Autor Novo", "Bio 2", LocalDate.now());
+        
+        pessoaDao.salvar(autor1);
+        pessoaDao.salvar(autor2);
+        
+        // Recuperar IDs gerados (pegando os últimos da lista)
+        List<Pessoa> todosAutores = pessoaDao.listarTodos();
+        Long idAutor1 = todosAutores.get(todosAutores.size() - 2).getId();
+        Long idAutor2 = todosAutores.get(todosAutores.size() - 1).getId();
+
+        // --- 2. CREATE (SALVAR LIVRO) ---
+        LivroDao livroDao = new LivroDao();
+        Livro livro = new Livro();
+        livro.setTitulo("Livro Versão 1");
+        livro.setEditora("Editora Teste");
+        
+        // Salva vinculado ao Autor 1
+        livroDao.salvar(livro, Arrays.asList(idAutor1));
+        assertNotNull(livro.getId(), "Livro deve ter ID após salvar");
+        Long idLivro = livro.getId();
+
+        // --- 3. UPDATE (EDITAR LIVRO) ---
+        // Modifica título e troca o autor (remove Autor 1, adiciona Autor 2)
+        livro.setTitulo("Livro Versão 2 - Editado");
+        livroDao.atualizar(livro, Arrays.asList(idAutor2));
+
+        // Validação: Busca no banco para ver se mudou mesmo
+        Livro livroAtualizado = livroDao.buscarPorId(idLivro);
+        assertEquals("Livro Versão 2 - Editado", livroAtualizado.getTitulo());
+        
+        // Verifica se o vínculo de autor mudou (Autor 1 saiu, Autor 2 entrou)
+        // Nota: buscarPorId carrega os autores. Verificamos se o ID do Autor 2 está lá.
+        boolean temAutor2 = livroAtualizado.getAutores().stream()
+                .anyMatch(p -> p.getId().equals(idAutor2));
+        assertTrue(temAutor2, "O livro editado deve estar vinculado ao Autor 2");
+
+        // --- 4. DELETE (EXCLUIR LIVRO) ---
+        livroDao.excluir(idLivro);
+
+        // Validação: Tenta buscar, deve retornar null ou vazio
+        Livro livroExcluido = livroDao.buscarPorId(idLivro);
+        assertNull(livroExcluido, "O livro não deve existir após exclusão");
+    }
+
+
+
 }
+
