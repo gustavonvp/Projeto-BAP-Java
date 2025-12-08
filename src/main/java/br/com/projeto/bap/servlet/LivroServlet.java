@@ -1,5 +1,7 @@
 package br.com.projeto.bap.servlet;
 
+
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,32 +17,63 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Controlador (Servlet) responsável pelo fluxo de cadastro e listagem de Livros.
+ * Recebe as requisições HTTP da View (JSP), interage com o Model (DAO)
+ * e devolve a resposta adequada.
+ */
+
 @WebServlet("/livro")
 public class LivroServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    // GET: Prepara o formulário (Carrega os autores) OU lista os livros
+    /**
+     * Gerencia as requisições GET.
+     * Se o parâmetro 'acao' for 'listar', exibe a tabela de livros.
+     * Caso contrário, prepara e exibe o formulário de cadastro.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
         String acao = request.getParameter("acao");
+        LivroDao livroDao = new LivroDao();
 
         if ("listar".equals(acao)) {
-            // Lógica futura para listar livros...
-            // Por enquanto, redireciona para a home
-            response.sendRedirect("index.jsp");
+            // 1. Busca a lista de livros no banco
+            List<Livro> listaLivros = livroDao.listarTodos();
+            
+            // 2. Disponibiliza para o JSP
+            request.setAttribute("listaLivros", listaLivros);
+            
+            // 3. Encaminha para a tela de listagem
+            RequestDispatcher dispatcher = request.getRequestDispatcher("lista-livros.jsp");
+            dispatcher.forward(request, response);
+        }else if ("buscar".equals(acao)) {
+        // --- NOVA LÓGICA DE BUSCA ---
+        String termo = request.getParameter("termo");
+        List<Livro> listaFiltrada;
+        
+        if (termo != null && !termo.trim().isEmpty()) {
+            listaFiltrada = livroDao.buscarPorTermo(termo);
         } else {
-            // AÇÃO PADRÃO: Abrir formulário de cadastro
-            // 1. Busca todos os autores no banco para preencher o <select>
+            // Se a busca estiver vazia, traz tudo
+            listaFiltrada = livroDao.listarTodos();
+        }
+        
+        // Reutilizamos a MESMA página de lista para mostrar o resultado
+        request.setAttribute("listaLivros", listaFiltrada);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("lista-livros.jsp");
+        dispatcher.forward(request, response);
+        } else {
+            // FLUXO DE CADASTRO (Padrão)
+            // Carrega os autores para preencher o <select> do formulário
             PessoaDao pessoaDao = new PessoaDao();
             List<Pessoa> listaAutores = pessoaDao.listarTodos();
             
-            // 2. Envia a lista para o JSP
             request.setAttribute("listaAutores", listaAutores);
             
-            // 3. Abre a página de cadastro
             RequestDispatcher dispatcher = request.getRequestDispatcher("cadastro-livro.jsp");
             dispatcher.forward(request, response);
         }

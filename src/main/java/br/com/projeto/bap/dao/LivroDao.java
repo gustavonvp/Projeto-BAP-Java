@@ -5,10 +5,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.projeto.bap.model.Livro;
 import br.com.projeto.bap.util.ConnectionFactory;
+
+
+/**
+ * Classe responsável pelo acesso a dados (DAO) da entidade Livro.
+ * Implementa as operações de CRUD utilizando JDBC puro e PreparedStatement
+ * para garantir segurança contra SQL Injection.
+ * * @author Gustavo Nunes
+ * @version 1.0
+ */
+
 
 public class LivroDao {
 
@@ -86,4 +97,83 @@ public class LivroDao {
             }
         }
     }
+
+private static final String SQL_LIST_ALL = "SELECT * FROM T_LIVRO ORDER BY titulo";
+
+    /**
+     * Recupera todos os livros cadastrados no banco de dados.
+     * * @return Uma lista de objetos Livro contendo os dados principais.
+     * @throws RuntimeException em caso de erro de conexão ou SQL.
+     */
+    public List<Livro> listarTodos() {
+        List<Livro> livros = new ArrayList<>();
+        
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_LIST_ALL);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Livro livro = new Livro();
+                livro.setId(rs.getLong("id"));
+                livro.setTitulo(rs.getString("titulo"));
+                livro.setEditora(rs.getString("editora"));
+                livro.setAno(rs.getInt("ano"));
+                livro.setGenero(rs.getString("genero"));
+                livro.setIsbn(rs.getString("isbn"));
+                // Nota: Por performance, não carregamos a lista de autores na listagem geral.
+                // Isso seria feito num método 'buscarPorId' (Ver Detalhes).
+                
+                livros.add(livro);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar livros do catálogo", e);
+        }
+        return livros;
+    }
+
+    // Query com JOIN para buscar tanto no Título do Livro quanto no Nome do Autor
+    private static final String SQL_BUSCA = 
+        "SELECT DISTINCT l.* FROM T_LIVRO l " +
+        "LEFT JOIN T_OBRA_AUTORES oa ON l.id = oa.id_livro " +
+        "LEFT JOIN T_PESSOA p ON oa.id_pessoa = p.id " +
+        "WHERE LOWER(l.titulo) LIKE LOWER(?) OR LOWER(p.nome_completo) LIKE LOWER(?) " +
+        "ORDER BY l.titulo";
+
+    /**
+     * Busca livros por termo (título ou nome do autor).
+     * Atende ao requisito de segurança contra SQL Injection.
+     */
+    public List<Livro> buscarPorTermo(String termo) {
+        List<Livro> livros = new ArrayList<>();
+        
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_BUSCA)) {
+
+            // O usuário digita "tolkien", nós transformamos em "%tolkien%"
+            // Isso permite buscar partes do nome.
+            String termoLike = "%" + termo + "%";
+            
+            stmt.setString(1, termoLike); // Substitui o primeiro ? (Titulo)
+            stmt.setString(2, termoLike); // Substitui o segundo ? (Autor)
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Livro livro = new Livro();
+                    livro.setId(rs.getLong("id"));
+                    livro.setTitulo(rs.getString("titulo"));
+                    livro.setEditora(rs.getString("editora"));
+                    livro.setAno(rs.getInt("ano"));
+                    livro.setGenero(rs.getString("genero"));
+                    livro.setIsbn(rs.getString("isbn"));
+                    livros.add(livro);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro na busca de livros", e);
+        }
+        return livros;
+    }
+
 }

@@ -23,6 +23,9 @@
                 <a href="livro" class="btn btn-success btn-lg px-4 gap-3">
                     📖 Cadastrar Livro
                 </a>
+                <a href="livro?acao=listar" class="btn btn-outline-success btn-lg px-4">
+                    📚 Ver Livros
+                </a>
                 <div class="d-grid gap-2 d-sm-flex justify-content-sm-start">
                     <a href="cadastro-pessoa.jsp" class="btn btn-primary btn-lg px-4 gap-3">
                         ➕ Cadastrar Pessoa (Autor/Diretor)
