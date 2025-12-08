@@ -5,15 +5,15 @@
 
 ## 🎯 Apresentação do Projeto
 
-Este projeto consiste no desenvolvimento de uma aplicação *web* para catalogação e gerenciamento de mídias (livros, filmes e séries). [cite_start]O sistema foi desenvolvido seguindo estritamente os princípios da **Programação Orientada a Objetos (POO)** e o padrão de arquitetura **MVC (Model-View-Controller)**, atendendo aos requisitos da disciplina de PIT[cite: 57, 67].
+Este projeto consiste no desenvolvimento de uma aplicação *web* para catalogação e gerenciamento de mídias (livros, filmes e séries). O sistema foi desenvolvido seguindo estritamente os princípios da **Programação Orientada a Objetos (POO)** e o padrão de arquitetura **MVC (Model-View-Controller)**.
 
-[cite_start]O objetivo é integrar competências de desenvolvimento *full-stack*, demonstrando domínio sobre a persistência de dados e segurança da informação sem o uso de *frameworks* de alto nível (como Spring), privilegiando a implementação "raiz" com **Jakarta EE**[cite: 283].
+O objetivo é integrar competências de desenvolvimento *full-stack*, demonstrando domínio sobre a persistência de dados e segurança da informação sem o uso de *frameworks* de alto nível (como Spring), privilegiando a implementação "raiz" com **Jakarta EE**.
 
 ---
 
 ## 🏗️ Arquitetura e Tecnologias
 
-[cite_start]A solução foi construída sobre a especificação **Jakarta EE 10**, utilizando as seguintes tecnologias mandatórias descritas no material teórico [cite: 283-287]:
+A solução foi construída sobre a especificação **Jakarta EE 10**, utilizando as seguintes tecnologias mandatórias:
 
 * **Linguagem:** Java 17 (LTS)
 * **Front-end (View):** JSP (JavaServer Pages) + JSTL + HTML5/Bootstrap.
@@ -26,67 +26,112 @@ Este projeto consiste no desenvolvimento de uma aplicação *web* para cataloga�
 
 A aplicação respeita a separação de responsabilidades exigida:
 
-1.  **Model (DAO + POJO):** Encapsula o acesso a dados (`PessoaDAO`, `LivroDAO`) e regras de negócio. [cite_start]Utiliza JDBC para executar instruções SQL[cite: 287].
-2.  **View (JSP):** Responsável pela apresentação. [cite_start]Utiliza JSTL e Expression Language (EL) para exibir dados dinâmicos[cite: 285].
-3.  [cite_start]**Controller (Servlet):** Recebe requisições HTTP, processa a lógica e despacha para a View correta[cite: 284].
+1.  **Model (DAO + POJO):** Encapsula o acesso a dados (`PessoaDAO`, `LivroDAO`) e regras de negócio. Utiliza JDBC para executar instruções SQL.
+2.  **View (JSP):** Responsável pela apresentação. Utiliza JSTL e Expression Language (EL) para exibir dados dinâmicos.
+3.  **Controller (Servlet):** Recebe requisições HTTP, processa a lógica e despacha para a View correta.
 
 ---
 
-## 🔒 Segurança e Robustez (ISO/IEC 27001)
+## 📂 Estrutura do Projeto
 
-[cite_start]Em conformidade com as exigências de segurança do projeto[cite: 266], foram implementadas as seguintes medidas:
+```text
+/src
+  /main
+    /java/br/com/projeto/bap
+       /dao         # Camada de Persistência (SQL/JDBC)
+       /model       # Classes POJO (Livro, Pessoa)
+       /servlet     # Controladores HTTP (Logica de navegação)
+       /util        # Utilitários (ConnectionFactory)
+    /resources      # Scripts SQL e configurações
+    /webapp         # Páginas JSP, CSS e WEB-INF
+       /WEB-INF     # Configurações de segurança (web.xml)
+       *.jsp        # Telas do sistema
 
-* **Prevenção contra SQL Injection:** Todas as operações de banco de dados utilizam **`PreparedStatement`**. [cite_start]Isso garante que entradas do usuário sejam tratadas como dados literais e não como comandos executáveis, mitigando a vulnerabilidade crítica apontada na Situação-Problema 1[cite: 302, 397].
-* [cite_start]**Tratamento de Exceções:** Implementação robusta de blocos `try-catch-finally` para garantir a integridade da aplicação e o fechamento correto de recursos (conexões), conforme exigido na Situação-Problema 2[cite: 204, 417].
+```
 
----
+## 🔌 Documentação de Rotas (Endpoints)
 
-## ✨ Funcionalidades Implementadas
+Embora a aplicação utilize renderização no servidor (JSP), a comunicação segue o protocolo HTTP padrão. Abaixo estão os endpoints disponíveis no Controller.
 
-[cite_start]O sistema atende aos requisitos funcionais mandatórios[cite: 73]:
 
-* ✅ **Interface Web:** Navegação intuitiva para gerenciamento do catálogo.
-* ✅ **CRUD Completo:** Cadastro, Leitura, Atualização e Exclusão de itens.
-* ✅ **Persistência:** Todos os dados são salvos em banco de dados relacional.
-* ✅ **Busca:** Funcionalidade de pesquisa por título ou autor.
+👤 Pessoas (Autores/Diretores)
 
----
+Endpoint: /pessoa
+Método	Parâmetro (Query/Body)	Ação	Descrição
+GET	?acao=listar (Default)	Listar	Retorna a view lista-pessoas.jsp com todos os registros.
+GET	?acao=editar&id={id}	Formulário	Retorna cadastro-pessoa.jsp preenchido com dados do ID.
+GET	?acao=excluir&id={id}	Excluir	Remove o registro e redireciona para a lista.
+POST	nomeCompleto, biografia...	Salvar/Atualizar	Se enviado ID, atualiza. Se não, cria novo registro.
+
+📖 Livros
+
+Endpoint: /livro
+Método	Parâmetro (Query/Body)	Ação	Descrição
+GET	?acao=listar	Listar	Retorna a view lista-livros.jsp com todos os livros.
+GET	?acao=buscar&termo={txt}	Buscar	Filtra livros por título ou autor (SQL LIKE).
+GET	?acao=editar&id={id}	Formulário	Retorna cadastro-livro.jsp com multiselect de autores.
+GET	?acao=excluir&id={id}	Excluir	Remove o livro e seus vínculos N:M.
+POST	titulo, autoresIds...	Salvar/Atualizar	Gerencia a transação de salvar livro e vincular autores.
+
+
+## 🔒 Segurança e Robustez
+
+Em conformidade com as exigências de segurança do projeto, foram implementadas as seguintes medidas:
+
+    Prevenção contra SQL Injection: Todas as operações de banco de dados utilizam PreparedStatement. Isso garante que entradas do usuário sejam tratadas como dados literais e não como comandos executáveis.
+
+    Tratamento de Exceções: Implementação robusta de blocos try-catch-finally para garantir a integridade da aplicação e o fechamento correto de conexões.
+
+
 
 ## 🛠️ Manual de Instalação e Execução
+1. Configuração do Banco de Dados
 
-[cite_start]Este guia atende ao requisito de "Manual do usuário simplificado"[cite: 345].
+Certifique-se de ter o PostgreSQL instalado localmente.
 
-### 1. Configuração do Banco de Dados
-Certifique-se de ter o **PostgreSQL** instalado localmente.
-1.  Abra o **pgAdmin** ou terminal SQL.
-2.  Crie um banco de dados chamado `catalogo_db`.
-3.  Execute o script de criação das tabelas (disponível em `src/main/resources/schema.sql` ou abaixo):
+    Abra o pgAdmin ou terminal SQL.
 
-```sql
-CREATE TABLE T_PESSOA (
+    Crie um banco de dados chamado catalogo_db.
+
+    Execute o script de criação das tabelas:
+
+    CREATE TABLE T_PESSOA (
     id SERIAL PRIMARY KEY,
     nome_completo VARCHAR(255) NOT NULL,
     biografia TEXT,
     data_nascimento DATE
-<<<<<<< HEAD
 );
-=======
+
+CREATE TABLE T_LIVRO (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    editora VARCHAR(255),
+    isbn VARCHAR(20),
+    ano INT,
+    genero VARCHAR(100),
+    sinopse TEXT
 );
->>>>>>> 7b269c5fa9e77d0395eed47916a7d18172777fac
 
+CREATE TABLE T_OBRA_AUTORES (
+    id_livro INT NOT NULL,
+    id_pessoa INT NOT NULL,
+    PRIMARY KEY (id_livro, id_pessoa),
+    FOREIGN KEY (id_livro) REFERENCES T_LIVRO(id),
+    FOREIGN KEY (id_pessoa) REFERENCES T_PESSOA(id)
+);
 
-📄 Atualização do README.md (Seção de Instalação)
+2. Configuração da Conexão
 
-Substitua a seção "🛠️ Manual de Instalação e Execução" por esta versão detalhada e à prova de falhas:
-
-    Importante: Verifique o arquivo src/main/java/br/com/projeto/bap/util/ConnectionFactory.java e atualize a variável PASS com a senha do seu PostgreSQL local.
-
+Verifique o arquivo src/main/java/br/com/projeto/bap/util/ConnectionFactory.java. Certifique-se de que a variável PASS corresponde à senha do seu PostgreSQL local.
 3. Compilação (Build)
 
 Abra o terminal na raiz do projeto e execute o comando do Maven para gerar o pacote de distribuição (.war):
+Bash
+
+mvn clean package
 
 O arquivo catalogo.war será gerado dentro da pasta target/.
-4. Deploy no Tomcat (Passo a Passo)
+4. Deploy no Tomcat
 
 Para evitar erros de caminho ou links simbólicos de IDEs, realizaremos o deploy manual:
 

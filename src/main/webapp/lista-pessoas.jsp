@@ -49,8 +49,9 @@
                                 <td><strong>${p.nomeCompleto}</strong></td>
                                 <td>${p.dataNascimento}</td>
                                 <td class="text-end">
-                                    <a href="#" class="btn btn-sm btn-outline-primary me-1">Editar</a>
-                                    <a href="#" class="btn btn-sm btn-outline-danger">Excluir</a>
+                                    <a href="pessoa?acao=editar&id=${p.id}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+                                    
+                                    <a href="pessoa?acao=excluir&id=${p.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza? Se excluir este autor, ele será removido dos livros.');">Excluir</a>
                                 </td>
                             </tr>
                         </c:forEach>

@@ -25,6 +25,13 @@ public class PessoaServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+        // 1. Receber ID (Se vier preenchido, é Edição)
+        String idStr = request.getParameter("id");
+        Long id = null;
+        if (idStr != null && !idStr.isEmpty()) {
+            try { id = Long.parseLong(idStr); } catch (NumberFormatException e) {System.out.println("ID inválido no POST: " + idStr);}
+        }
+
         // 1. Receber os dados do HTML (Vêm todos como String)
         String nome = request.getParameter("nomeCompleto");
         String biografia = request.getParameter("biografia");
@@ -44,12 +51,22 @@ public class PessoaServlet extends HttpServlet {
 
         // 3. Montar o Objeto (Model)
         Pessoa pessoa = new Pessoa();
+        pessoa.setId(id);
         pessoa.setNomeCompleto(nome);
         pessoa.setBiografia(biografia);
         pessoa.setDataNascimento(dataNascimento);
 
-        // 4. Chamar o DAO para salvar no Banco (Persistência)
-        PessoaDao dao = new PessoaDao();
+        // 4. Chamar o DAO para salvar no Banco (Persistência) // 4. Decidir: Salvar (Novo) ou Atualizar (Existente)
+        PessoaDao dao = new PessoaDao(); 
+        if (pessoa.getId() == null) {
+            dao.salvar(pessoa);
+        } else {
+            dao.atualizar(pessoa); // Requer método atualizar no DAO
+        }
+        // 5. Redirecionar para a lista
+     // ✅ SUCESSO: Redireciona para a lista
+            // IMPORTANTE: Este é o ÚNICO ponto de redirecionamento de sucesso
+            response.sendRedirect("pessoa?msg=salvo");
         
         try {
             dao.salvar(pessoa);
@@ -62,7 +79,8 @@ public class PessoaServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             // Se der erro, redireciona com mensagem de erro
-            response.sendRedirect("cadastro-pessoa.jsp?msg=erro");
+            // erro redirecionamento duplo response.sendRedirect("cadastro-pessoa.jsp?msg=erro");
+           // return;
         }
     }
 
@@ -71,16 +89,57 @@ public class PessoaServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
+        String acao = request.getParameter("acao");
+        String idStr = request.getParameter("id");
+    
+        // --- DEBUG NO CONSOLE DO TOMCAT ---
+        System.out.println(">>> PessoaServlet doGet invocado!");
+        System.out.println(">>> Ação recebida: " + acao);
+        System.out.println(">>> ID recebido: " + idStr);
+        // ----------------------------------
+
         PessoaDao dao = new PessoaDao();
         
-        // 1. Busca a lista no banco
-        List<Pessoa> listaPessoas = dao.listarTodos();
-        
-        // 2. Pendura a lista na requisição para o JSP usar
-        request.setAttribute("listaPessoas", listaPessoas);
-        
-        // 3. Encaminha para uma página JSP de listagem (que vamos criar)
-        RequestDispatcher dispatcher = request.getRequestDispatcher("lista-pessoas.jsp");
-        dispatcher.forward(request, response);
+        if ("editar".equals(acao)) {
+            // --- LÓGICA DE PREPARAR EDIÇÃO ---
+            try {
+                // Usa a variável idStr que capturamos acima
+                if (idStr != null && !idStr.isEmpty()) {
+                    Long id = Long.parseLong(idStr); // Converte "5" para 5
+                    
+                    Pessoa pessoa = dao.buscarPorId(id);
+                    request.setAttribute("pessoa", pessoa);
+                    
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("cadastro-pessoa.jsp");
+                    dispatcher.forward(request, response);
+                } else {
+                    response.sendRedirect("pessoa"); // Se ID for vazio, volta pra lista
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendRedirect("pessoa?erro=idInvalido");
+            }
+
+        } else if ("excluir".equals(acao)) {
+            // LÓGICA DE EXCLUIR
+            try {
+                // Usa a variável idStr novamente
+                if (idStr != null && !idStr.isEmpty()) {
+                    Long id = Long.parseLong(idStr);
+                    dao.excluir(id);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            // Redireciona para limpar a URL
+            response.sendRedirect("pessoa");
+
+        } else {
+            // LISTAGEM PADRÃO (Se não tiver ação ou ação for desconhecida)
+            List<Pessoa> lista = dao.listarTodos();
+            request.setAttribute("listaPessoas", lista);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("lista-pessoas.jsp");
+            dispatcher.forward(request, response);
+        }
     }
 }
