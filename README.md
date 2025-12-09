@@ -1,6 +1,6 @@
 # 📚 Projeto Integrador: Catálogo de Mídias (Livros e Filmes)
 
-> **Disciplina:** Projeto Integrador Transdisciplinar (PIT) - Ciência da Computação
+> **Disciplina:** Projeto Integrador Transdisciplinar (PIT) - Ciência da Computação  
 > **Metodologia:** Aprendizagem Baseada em Projetos (ABP)
 
 ## 🎯 Apresentação do Projeto
@@ -15,12 +15,12 @@ O objetivo é integrar competências de desenvolvimento *full-stack*, demonstran
 
 A solução foi construída sobre a especificação **Jakarta EE 10**, utilizando as seguintes tecnologias mandatórias:
 
-* **Linguagem:** Java 17 (LTS)
-* **Front-end (View):** JSP (JavaServer Pages) + JSTL + HTML5/Bootstrap.
-* **Back-end (Controller):** Java Servlets (Jakarta Servlet API).
-* **Persistência (Model):** JDBC (Java Database Connectivity) puro com padrão DAO.
-* **Banco de Dados:** PostgreSQL (Instalação Local).
-* **Servidor de Aplicação:** Apache Tomcat 10.
+* ☕ **Linguagem:** Java 17 (LTS)
+* 🎨 **Front-end (View):** JSP (JavaServer Pages) + JSTL + HTML5/Bootstrap.
+* ⚙️ **Back-end (Controller):** Java Servlets (Jakarta Servlet API).
+* 🗄️ **Persistência (Model):** JDBC (Java Database Connectivity) puro com padrão DAO.
+* 🐘 **Banco de Dados:** PostgreSQL (Instalação Local).
+* 🚀 **Servidor de Aplicação:** Apache Tomcat 10.
 
 ### Estrutura MVC
 
@@ -40,51 +40,41 @@ A aplicação respeita a separação de responsabilidades exigida:
     /java/br/com/projeto/bap
        /dao         # Camada de Persistência (SQL/JDBC)
        /model       # Classes POJO (Livro, Pessoa)
-       /servlet     # Controladores HTTP (Logica de navegação)
+       /servlet     # Controladores HTTP (Lógica de navegação)
        /util        # Utilitários (ConnectionFactory)
     /resources      # Scripts SQL e configurações
     /webapp         # Páginas JSP, CSS e WEB-INF
        /WEB-INF     # Configurações de segurança (web.xml)
-       *.jsp        # Telas do sistema
-
-```
-
-## 🔌 Documentação de Rotas (Endpoints)
+       *.jsp        # Telas do sistema (View)
+🔌 Documentação de Rotas (Endpoints)
 
 Embora a aplicação utilize renderização no servidor (JSP), a comunicação segue o protocolo HTTP padrão. Abaixo estão os endpoints disponíveis no Controller.
-
-
 👤 Pessoas (Autores/Diretores)
 
-Endpoint: /pessoa
-Método	Parâmetro (Query/Body)	Ação	Descrição
+Endpoint Base: /pessoa
+Método	Parâmetros (Query/Body)	Ação	Descrição
 GET	?acao=listar (Default)	Listar	Retorna a view lista-pessoas.jsp com todos os registros.
 GET	?acao=editar&id={id}	Formulário	Retorna cadastro-pessoa.jsp preenchido com dados do ID.
 GET	?acao=excluir&id={id}	Excluir	Remove o registro e redireciona para a lista.
 POST	nomeCompleto, biografia...	Salvar/Atualizar	Se enviado ID, atualiza. Se não, cria novo registro.
-
 📖 Livros
 
-Endpoint: /livro
-Método	Parâmetro (Query/Body)	Ação	Descrição
+Endpoint Base: /livro
+Método	Parâmetros (Query/Body)	Ação	Descrição
 GET	?acao=listar	Listar	Retorna a view lista-livros.jsp com todos os livros.
 GET	?acao=buscar&termo={txt}	Buscar	Filtra livros por título ou autor (SQL LIKE).
 GET	?acao=editar&id={id}	Formulário	Retorna cadastro-livro.jsp com multiselect de autores.
 GET	?acao=excluir&id={id}	Excluir	Remove o livro e seus vínculos N:M.
 POST	titulo, autoresIds...	Salvar/Atualizar	Gerencia a transação de salvar livro e vincular autores.
-
-
-## 🔒 Segurança e Robustez
+🔒 Segurança e Robustez
 
 Em conformidade com as exigências de segurança do projeto, foram implementadas as seguintes medidas:
 
-    Prevenção contra SQL Injection: Todas as operações de banco de dados utilizam PreparedStatement. Isso garante que entradas do usuário sejam tratadas como dados literais e não como comandos executáveis.
+    ✅ Prevenção contra SQL Injection: Todas as operações de banco de dados utilizam PreparedStatement. Isso garante que entradas do usuário sejam tratadas como dados literais e não como comandos executáveis.
 
-    Tratamento de Exceções: Implementação robusta de blocos try-catch-finally para garantir a integridade da aplicação e o fechamento correto de conexões.
+    ✅ Tratamento de Exceções: Implementação robusta de blocos try-catch-finally para garantir a integridade da aplicação e o fechamento correto de conexões.
 
-
-
-## 🛠️ Manual de Instalação e Execução
+🛠️ Manual de Instalação e Execução
 1. Configuração do Banco de Dados
 
 Certifique-se de ter o PostgreSQL instalado localmente.
@@ -93,26 +83,33 @@ Certifique-se de ter o PostgreSQL instalado localmente.
 
     Crie um banco de dados chamado catalogo_db.
 
-    Execute o script de criação das tabelas:
+    Execute o script completo de criação das tabelas abaixo:
 
-    CREATE TABLE T_PESSOA (
+SQL
+
+-- 1. Tabela de Pessoas (Autores e Diretores)
+CREATE TABLE IF NOT EXISTS T_PESSOA (
     id SERIAL PRIMARY KEY,
     nome_completo VARCHAR(255) NOT NULL,
     biografia TEXT,
-    data_nascimento DATE
+    data_nascimento DATE,
+    foto_url VARCHAR(1000) -- Link para foto de perfil
 );
 
-CREATE TABLE T_LIVRO (
+-- 2. Tabela de Livros
+CREATE TABLE IF NOT EXISTS T_LIVRO (
     id SERIAL PRIMARY KEY,
     titulo VARCHAR(255) NOT NULL,
     editora VARCHAR(255),
     isbn VARCHAR(20),
     ano INT,
     genero VARCHAR(100),
-    sinopse TEXT
+    sinopse TEXT,
+    capa_url VARCHAR(1000) -- Link para imagem da capa
 );
 
-CREATE TABLE T_OBRA_AUTORES (
+-- 3. Tabela Associativa (Relacionamento N:M)
+CREATE TABLE IF NOT EXISTS T_OBRA_AUTORES (
     id_livro INT NOT NULL,
     id_pessoa INT NOT NULL,
     PRIMARY KEY (id_livro, id_pessoa),
@@ -154,76 +151,23 @@ Para evitar erros de caminho ou links simbólicos de IDEs, realizaremos o deploy
     Acesse a aplicação no navegador:
 
 👉 http://localhost:8080/catalogo/
+🔍 Queries Úteis para Testes
 
-
-
-6. Script para Uso de JDBC
-
-    -- =========================================================
--- SCRIPT DE CRIAÇÃO DO BANCO DE DADOS (VERSÃO 1.0)
--- Sistema: Catálogo de Mídias BAP
--- Banco: PostgreSQL
--- =========================================================
-
--- 1. Tabela de Pessoas (Autores e Diretores)
-CREATE TABLE IF NOT EXISTS T_PESSOA (
-    id SERIAL PRIMARY KEY,
-    nome_completo VARCHAR(255) NOT NULL,
-    biografia TEXT,
-    data_nascimento DATE,
-    foto_url VARCHAR(1000) -- Link para foto de perfil
-);
-
--- 2. Tabela de Livros
-CREATE TABLE IF NOT EXISTS T_LIVRO (
-    id SERIAL PRIMARY KEY,
-    titulo VARCHAR(255) NOT NULL,
-    editora VARCHAR(255),
-    isbn VARCHAR(20),
-    ano INT,
-    genero VARCHAR(100),
-    sinopse TEXT,
-    capa_url VARCHAR(1000) -- Link para imagem da capa
-);
-
--- 3. Tabela Associativa (Relacionamento N:M)
--- Permite que um livro tenha vários autores e um autor tenha vários livros
-CREATE TABLE IF NOT EXISTS T_OBRA_AUTORES (
-    id_livro INT NOT NULL,
-    id_pessoa INT NOT NULL,
-    PRIMARY KEY (id_livro, id_pessoa),
-    FOREIGN KEY (id_livro) REFERENCES T_LIVRO(id),
-    FOREIGN KEY (id_pessoa) REFERENCES T_PESSOA(id)
-);
-
--- =========================================================
--- QUERY DE EXEMPLO (PARA TESTE RÁPIDO)
--- =========================================================
+Caso queira popular o banco manualmente ou verificar os dados, utilize os scripts abaixo:
+SQL
 
 -- Inserir um Autor
 INSERT INTO T_PESSOA (nome_completo, biografia, foto_url) 
-VALUES ('J.R.R. Tolkien', 'O pai da fantasia moderna.', 'https://upload.wikimedia.org/wikipedia/commons/b/b4/Tolkien_1916.jpg');
+VALUES ('J.R.R. Tolkien', 'O pai da fantasia moderna.', '[https://upload.wikimedia.org/wikipedia/commons/b/b4/Tolkien_1916.jpg](https://upload.wikimedia.org/wikipedia/commons/b/b4/Tolkien_1916.jpg)');
 
 -- Inserir um Livro
 INSERT INTO T_LIVRO (titulo, ano, genero, capa_url) 
-VALUES ('O Hobbit', 1937, 'Fantasia', 'https://m.media-amazon.com/images/I/91RnHEbM9OL._AC_UF1000,1000_QL80_.jpg');
+VALUES ('O Hobbit', 1937, 'Fantasia', '[https://m.media-amazon.com/images/I/91RnHEbM9OL._AC_UF1000,1000_QL80_.jpg](https://m.media-amazon.com/images/I/91RnHEbM9OL._AC_UF1000,1000_QL80_.jpg)');
 
 -- Vincular (Assumindo que ambos ganharam ID 1)
 INSERT INTO T_OBRA_AUTORES (id_livro, id_pessoa) VALUES (1, 1);  
 
--- Filtrar Livro por ID, Titulo , Capa_url
-SELECT id, titulo, capa_url FROM T_LIVRO ORDER BY id;
-
--- Exemplo: Atualizando o livro com ID 1
-UPDATE T_LIVRO 
-SET capa_url = 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Biblia-1-.png' 
-WHERE id = 46;
-
--- Ver os Livros cadastrados
-SELECT * FROM T_LIVRO;
-
-
--- Essa query cruza as 3 tabelas para mostrar: Nome do Livro, Editora e Nome do Autor 
+-- Verificar a "Mágica" (JOIN de Livro com Autor)
 SELECT 
     l.titulo AS "Título do Livro",
     l.editora AS "Editora",
@@ -231,3 +175,7 @@ SELECT
 FROM T_LIVRO l
 INNER JOIN T_OBRA_AUTORES oa ON l.id = oa.id_livro
 INNER JOIN T_PESSOA p ON oa.id_pessoa = p.id;
+
+Desenvolvido por: Gustavo Nunes
+
+RGM: 38346818
