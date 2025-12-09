@@ -154,3 +154,80 @@ Para evitar erros de caminho ou links simbólicos de IDEs, realizaremos o deploy
     Acesse a aplicação no navegador:
 
 👉 http://localhost:8080/catalogo/
+
+
+
+6. Script para Uso de JDBC
+
+    -- =========================================================
+-- SCRIPT DE CRIAÇÃO DO BANCO DE DADOS (VERSÃO 1.0)
+-- Sistema: Catálogo de Mídias BAP
+-- Banco: PostgreSQL
+-- =========================================================
+
+-- 1. Tabela de Pessoas (Autores e Diretores)
+CREATE TABLE IF NOT EXISTS T_PESSOA (
+    id SERIAL PRIMARY KEY,
+    nome_completo VARCHAR(255) NOT NULL,
+    biografia TEXT,
+    data_nascimento DATE,
+    foto_url VARCHAR(1000) -- Link para foto de perfil
+);
+
+-- 2. Tabela de Livros
+CREATE TABLE IF NOT EXISTS T_LIVRO (
+    id SERIAL PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    editora VARCHAR(255),
+    isbn VARCHAR(20),
+    ano INT,
+    genero VARCHAR(100),
+    sinopse TEXT,
+    capa_url VARCHAR(1000) -- Link para imagem da capa
+);
+
+-- 3. Tabela Associativa (Relacionamento N:M)
+-- Permite que um livro tenha vários autores e um autor tenha vários livros
+CREATE TABLE IF NOT EXISTS T_OBRA_AUTORES (
+    id_livro INT NOT NULL,
+    id_pessoa INT NOT NULL,
+    PRIMARY KEY (id_livro, id_pessoa),
+    FOREIGN KEY (id_livro) REFERENCES T_LIVRO(id),
+    FOREIGN KEY (id_pessoa) REFERENCES T_PESSOA(id)
+);
+
+-- =========================================================
+-- QUERY DE EXEMPLO (PARA TESTE RÁPIDO)
+-- =========================================================
+
+-- Inserir um Autor
+INSERT INTO T_PESSOA (nome_completo, biografia, foto_url) 
+VALUES ('J.R.R. Tolkien', 'O pai da fantasia moderna.', 'https://upload.wikimedia.org/wikipedia/commons/b/b4/Tolkien_1916.jpg');
+
+-- Inserir um Livro
+INSERT INTO T_LIVRO (titulo, ano, genero, capa_url) 
+VALUES ('O Hobbit', 1937, 'Fantasia', 'https://m.media-amazon.com/images/I/91RnHEbM9OL._AC_UF1000,1000_QL80_.jpg');
+
+-- Vincular (Assumindo que ambos ganharam ID 1)
+INSERT INTO T_OBRA_AUTORES (id_livro, id_pessoa) VALUES (1, 1);  
+
+-- Filtrar Livro por ID, Titulo , Capa_url
+SELECT id, titulo, capa_url FROM T_LIVRO ORDER BY id;
+
+-- Exemplo: Atualizando o livro com ID 1
+UPDATE T_LIVRO 
+SET capa_url = 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Biblia-1-.png' 
+WHERE id = 46;
+
+-- Ver os Livros cadastrados
+SELECT * FROM T_LIVRO;
+
+
+-- Essa query cruza as 3 tabelas para mostrar: Nome do Livro, Editora e Nome do Autor 
+SELECT 
+    l.titulo AS "Título do Livro",
+    l.editora AS "Editora",
+    p.nome_completo AS "Autor/Diretor"
+FROM T_LIVRO l
+INNER JOIN T_OBRA_AUTORES oa ON l.id = oa.id_livro
+INNER JOIN T_PESSOA p ON oa.id_pessoa = p.id;
