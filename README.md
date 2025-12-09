@@ -176,6 +176,20 @@ FROM T_LIVRO l
 INNER JOIN T_OBRA_AUTORES oa ON l.id = oa.id_livro
 INNER JOIN T_PESSOA p ON oa.id_pessoa = p.id;
 
+-- Filtrar Livro por titulo, capa_url, e ordenado por id
+SELECT id, titulo, capa_url FROM T_LIVRO ORDER BY id;
+
+-- Atualizar Livro, somente atributo capa_url (utilizar id para localizar livro e atualizar os atributos)
+UPDATE T_LIVRO SET capa_url = 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Biblia-1-.png' WHERE id = 46;
+UPDATE T_LIVRO SET titulo=?, editora=?, isbn=?, ano=?, genero=?, sinopse=?, capa_url=? WHERE id=?;
+
+-- Alterar Livro, adicionando nova propriedade (verificar regra de negócio para não desestruturar relação de dados)
+ALTER TABLE T_LIVRO ADD COLUMN capa_url VARCHAR(1000);
+
+
+
+
+
 Desenvolvido por: Gustavo Nunes
 
 RGM: 38346818
